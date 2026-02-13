@@ -63,39 +63,34 @@ maximadeka/convertkit-ruby
 Forks: 46 total, 17 analyzed, 17 with meaningful changes
 
 convertkit-ruby.gemspec (11 forks converge here)
-  WebinarGeek          +1 -2 (2 commits ahead)
-    Change gitspec faraday version
-  roelbondoc           +3 -3 (1 commits ahead)
-    Update convertkit-ruby.gemspec
-  chaiandconversation  +1 -0 (4 commits ahead)
-    Updating gem to use newer faraday to work with Rails 6
-  excid3               +1 -2 (5 commits ahead)
-    Update faraday_middleware dependency to the latest
-  mikefogg             +13 -13 (1 commits ahead)
-    Upgrading faraday
-  ...and 6 more
+
+  WebinarGeek +1 -2 — Change gitspec faraday version
+    -  spec.add_runtime_dependency "faraday", "~> 1.0"
+    -  spec.add_runtime_dependency "faraday_middleware", "~> 1.0"
+    +  spec.add_runtime_dependency "faraday", '>= 2.0'
+
+  alexbndk +1 -2 — Update convertkit-ruby.gemspec
+    -  spec.add_runtime_dependency "faraday", "~> 1.0"
+    -  spec.add_runtime_dependency "faraday_middleware", "~> 1.0"
+    +  spec.add_runtime_dependency "faraday", "~> 2.7.4"
+
+  excid3 +1 -2 — Update faraday_middleware dependency to the latest
+    -  spec.add_runtime_dependency "faraday", "~> 1.0"
+    -  spec.add_runtime_dependency "faraday_middleware", "~> 1.0"
+    +  spec.add_runtime_dependency "faraday", ">= 1.0", "< 3.0"
+  ...
 
 lib/convertkit/connection.rb (4 forks converge here)
-  WebinarGeek          +0 -1 (2 commits ahead)
-    Change gitspec faraday version
-  chaiandconversation  +0 -1 (4 commits ahead)
-    Updating gem to use newer faraday to work with Rails 6
-  alexbndk             +0 -1 (2 commits ahead)
-    Update convertkit-ruby.gemspec
-  excid3               +0 -1 (5 commits ahead)
-    Update faraday_middleware dependency to the latest
 
-lib/convertkit/client/tags.rb (3 forks converge here)
-  ericalli             +4 -0 (3 commits ahead)
-    Add form subscriptions endpoint
-  jaswinder97          +6 -0 (2 commits ahead)
-    Allow gemspec to use latest versions of dependencies
-  jamesknelson         +11 -2 (3 commits ahead)
-    add webhoks and remove tag support
+  Most common change pattern:
+     require "faraday"
+    -require "faraday_middleware"
+     require "json"
+  WebinarGeek, chaiandconversation, alexbndk, excid3
 ...
 ```
 
-11 independent forks all updating the gemspec to fix the faraday dependency — that's a clear signal the maintainer should bump it upstream.
+11 independent forks all updating the gemspec to fix the faraday dependency — and now you can see exactly what each one changed. When forks make identical changes (like removing the `faraday_middleware` require), they're grouped together automatically.
 
 ## How it works
 
@@ -104,6 +99,7 @@ lib/convertkit/client/tags.rb (3 forks converge here)
 3. Filters out noise: bot commits (dependabot, renovate), lock file changes, CI config tweaks
 4. Groups forks by the files they modify
 5. Highlights convergence — files modified by multiple independent forks
+6. Shows the actual patches — when multiple forks make identical changes, they're grouped together; unique changes are shown inline with their diffs
 
 ## Rate limits
 

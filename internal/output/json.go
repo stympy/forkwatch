@@ -17,9 +17,10 @@ type jsonOutput struct {
 }
 
 type jsonCluster struct {
-	File        string     `json:"file"`
-	Convergence int        `json:"convergence"`
-	Forks       []jsonFork `json:"forks"`
+	File        string           `json:"file"`
+	Convergence int              `json:"convergence"`
+	Forks       []jsonFork       `json:"forks"`
+	PatchGroups []jsonPatchGroup `json:"patch_groups,omitempty"`
 }
 
 type jsonFork struct {
@@ -29,6 +30,13 @@ type jsonFork struct {
 	Commits  []string `json:"commit_messages"`
 	Added    int      `json:"additions"`
 	Deleted  int      `json:"deletions"`
+	Patch    string   `json:"patch,omitempty"`
+}
+
+type jsonPatchGroup struct {
+	Patch    string   `json:"patch"`
+	ForkCount int     `json:"fork_count"`
+	Forks    []string `json:"forks"`
 }
 
 func PrintJSON(result *analysis.AnalysisResult) error {
@@ -52,7 +60,21 @@ func PrintJSON(result *analysis.AnalysisResult) error {
 				Commits: f.CommitMessages,
 				Added:   f.Additions,
 				Deleted: f.Deletions,
+				Patch:   f.Patch,
 			})
+		}
+		if c.PatchGroups != nil {
+			for _, g := range c.PatchGroups.Groups {
+				var owners []string
+				for _, f := range g.Forks {
+					owners = append(owners, f.Owner)
+				}
+				jc.PatchGroups = append(jc.PatchGroups, jsonPatchGroup{
+					Patch:     g.Full,
+					ForkCount: len(g.Forks),
+					Forks:     owners,
+				})
+			}
 		}
 		out.Clusters = append(out.Clusters, jc)
 	}

@@ -41,6 +41,7 @@ type FileChange struct {
 	Filename  string
 	Additions int
 	Deletions int
+	Patch     string
 }
 
 func CompareFork(ctx context.Context, client *gh.Client, upstreamOwner, upstreamRepo, upstreamBranch string, fork ForkInfo) (*ForkComparison, error) {
@@ -88,6 +89,7 @@ func CompareFork(ctx context.Context, client *gh.Client, upstreamOwner, upstream
 			Filename:  name,
 			Additions: f.GetAdditions(),
 			Deletions: f.GetDeletions(),
+			Patch:     f.GetPatch(),
 		})
 	}
 	if allBoring && len(files) > 0 {

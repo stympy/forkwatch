@@ -9,7 +9,8 @@ import (
 type FileCluster struct {
 	Filename    string
 	Forks       []ForkSummary
-	Convergence int // number of independent forks touching this file
+	Convergence int            // number of independent forks touching this file
+	PatchGroups *PatchGrouping // nil for single-fork files
 }
 
 type ForkSummary struct {
@@ -19,6 +20,7 @@ type ForkSummary struct {
 	CommitMessages []string
 	Additions      int
 	Deletions      int
+	Patch          string
 }
 
 type AnalysisResult struct {
@@ -48,6 +50,7 @@ func Cluster(comparisons []*gh.ForkComparison, upstreamOwner, upstreamRepo strin
 				CommitMessages: comp.CommitMessages,
 				Additions:      f.Additions,
 				Deletions:      f.Deletions,
+				Patch:          f.Patch,
 			}
 			fileMap[f.Filename] = append(fileMap[f.Filename], summary)
 		}
@@ -55,11 +58,15 @@ func Cluster(comparisons []*gh.ForkComparison, upstreamOwner, upstreamRepo strin
 
 	var clusters []FileCluster
 	for filename, forks := range fileMap {
-		clusters = append(clusters, FileCluster{
+		c := FileCluster{
 			Filename:    filename,
 			Forks:       forks,
 			Convergence: len(forks),
-		})
+		}
+		if c.Convergence >= 2 {
+			c.PatchGroups = GroupPatches(forks)
+		}
+		clusters = append(clusters, c)
 	}
 
 	// Sort: most convergent first, then alphabetically
