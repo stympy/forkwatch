@@ -8,6 +8,14 @@ Inspired by the idea of [Respectful Open Source](https://radicle.xyz/2024/09/24/
 
 ## Install
 
+### Homebrew
+
+```
+brew install stympy/tap/forkwatch
+```
+
+### Go
+
 ```
 go install github.com/stympy/forkwatch@latest
 ```
