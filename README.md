@@ -4,7 +4,7 @@ Discover meaningful patches hiding in GitHub forks.
 
 Forkwatch analyzes forks of a repository to find changes that haven't been submitted as pull requests. It groups forks by the files they modify and highlights **convergence** — when multiple independent forks touch the same code, that's a strong signal something needs fixing upstream.
 
-Inspired by the idea of [Respectful Open Source](https://radicle.xyz/2024/09/24/respectful-open-source.html): maintainers and users should be able to find meaningful work happening in forks without anyone having to push a PR.
+Inspired by the idea of [Respectful Open Source](https://nesbitt.io/2026/02/13/respectful-open-source.html): maintainers and users should be able to find meaningful work happening in forks without anyone having to push a PR.
 
 ## Install
 
