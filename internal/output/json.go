@@ -9,11 +9,21 @@ import (
 )
 
 type jsonOutput struct {
-	Repository string        `json:"repository"`
-	TotalForks int           `json:"total_forks"`
-	Analyzed   int           `json:"analyzed_forks"`
-	Active     int           `json:"active_forks"`
-	Clusters   []jsonCluster `json:"clusters"`
+	Repository         string               `json:"repository"`
+	TotalForks         int                  `json:"total_forks"`
+	Analyzed           int                  `json:"analyzed_forks"`
+	Active             int                  `json:"active_forks"`
+	RecommendedChanges []jsonRecommendation `json:"recommended_changes,omitempty"`
+	Clusters           []jsonCluster        `json:"clusters"`
+}
+
+type jsonRecommendation struct {
+	File          string   `json:"file"`
+	Patch         string   `json:"patch"`
+	Convergence   int      `json:"convergence"`
+	AgreedBy      int      `json:"agreed_by"`
+	Forks         []string `json:"forks"`
+	CommitMessage string   `json:"commit_message"`
 }
 
 type jsonCluster struct {
@@ -45,6 +55,17 @@ func PrintJSON(result *analysis.AnalysisResult) error {
 		TotalForks: result.TotalForks,
 		Analyzed:   result.AnalyzedForks,
 		Active:     result.ActiveForks,
+	}
+
+	for _, rec := range analysis.Recommend(result) {
+		out.RecommendedChanges = append(out.RecommendedChanges, jsonRecommendation{
+			File:          rec.File,
+			Patch:         fmt.Sprintf("--- a/%s\n+++ b/%s\n%s", rec.File, rec.File, rec.Patch),
+			Convergence:   rec.Convergence,
+			AgreedBy:      rec.AgreedBy,
+			Forks:         rec.Forks,
+			CommitMessage: rec.CommitMessage,
+		})
 	}
 
 	for _, c := range result.Clusters {

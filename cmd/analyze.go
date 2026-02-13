@@ -16,6 +16,7 @@ var (
 	minAhead int
 	limit    int
 	jsonOut  bool
+	patchOut bool
 )
 
 var analyzeCmd = &cobra.Command{
@@ -30,6 +31,8 @@ func init() {
 	analyzeCmd.Flags().IntVar(&minAhead, "min-ahead", 1, "Minimum commits ahead to consider")
 	analyzeCmd.Flags().IntVar(&limit, "limit", 100, "Max forks to analyze (sorted by most recently pushed)")
 	analyzeCmd.Flags().BoolVar(&jsonOut, "json", false, "Output as JSON")
+	analyzeCmd.Flags().BoolVar(&patchOut, "patch", false, "Output a unified diff suitable for git apply")
+	analyzeCmd.MarkFlagsMutuallyExclusive("json", "patch")
 	rootCmd.AddCommand(analyzeCmd)
 }
 
@@ -89,6 +92,10 @@ func runAnalyze(cmd *cobra.Command, args []string) error {
 
 	if jsonOut {
 		return output.PrintJSON(result)
+	}
+	if patchOut {
+		output.PrintPatch(result)
+		return nil
 	}
 
 	output.PrintTable(result)

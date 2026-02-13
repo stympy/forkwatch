@@ -44,7 +44,8 @@ forkwatch analyze owner/repo [flags]
 |---|---|---|
 | `--min-ahead` | 1 | Minimum commits ahead to consider |
 | `--limit` | 100 | Max forks to analyze (sorted by most recently pushed) |
-| `--json` | false | Output as JSON |
+| `--json` | false | Output as JSON (includes `recommended_changes`) |
+| `--patch` | false | Output a unified diff suitable for `git apply` |
 
 ### Examples
 
@@ -57,6 +58,9 @@ forkwatch analyze expressjs/express --min-ahead 3
 
 # Get JSON output for scripting
 forkwatch analyze expressjs/express --json
+
+# Get a unified diff you can apply directly
+forkwatch analyze expressjs/express --patch | git apply
 
 # Analyze more forks (slower, uses more API calls)
 forkwatch analyze expressjs/express --limit 500
@@ -99,6 +103,44 @@ lib/convertkit/connection.rb (4 forks converge here)
 ```
 
 11 independent forks all updating the gemspec to fix the faraday dependency — and now you can see exactly what each one changed. When forks make identical changes (like removing the `faraday_middleware` require), they're grouped together automatically.
+
+## Applying changes
+
+The `--patch` flag outputs a unified diff of the most-converged-upon change for each file, ready to pipe into `git apply`:
+
+```
+forkwatch analyze maximadeka/convertkit-ruby --patch | git apply
+```
+
+For each file where multiple forks converge, forkwatch picks the patch shared by the most forks and emits it with proper `--- a/` / `+++ b/` headers.
+
+## JSON output
+
+The `--json` flag outputs structured data for scripting and automation. It includes a top-level `recommended_changes` array — the winning patch per convergent file, ready to act on:
+
+```json
+{
+  "recommended_changes": [
+    {
+      "file": "convertkit-ruby.gemspec",
+      "patch": "--- a/convertkit-ruby.gemspec\n+++ b/convertkit-ruby.gemspec\n@@ ...",
+      "convergence": 11,
+      "agreed_by": 8,
+      "forks": ["WebinarGeek", "alexbndk", "..."],
+      "commit_message": "Upgrade faraday to v2"
+    }
+  ],
+  "clusters": [ "..." ]
+}
+```
+
+Each recommendation includes:
+- **file** — path that needs changing
+- **patch** — `git apply`-ready unified diff for this file
+- **convergence** — total forks touching this file
+- **agreed_by** — how many forks share this exact patch
+- **forks** — which fork owners agree on this change
+- **commit_message** — representative first-line commit message from the agreeing forks
 
 ## How it works
 
